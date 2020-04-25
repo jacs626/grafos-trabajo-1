@@ -1,7 +1,17 @@
 from django.http import HttpResponse
+from django.template import Template, Context
 
-def saludo (request):
+def saludo(request):
 
-    return HttpResponse("Primer pagina con django")
+    doc_externo=open("C:/Users/Administrador/Desktop/proyectos django/Proyecto1/Proyecto1/plantillas/miplantilla.html")
 
-    
+    plt=Template(doc_externo.read())
+
+    doc_externo.close()
+
+    ctx=Context()
+
+    documento=plt.render(ctx)
+
+    return HttpResponse(documento)
+
