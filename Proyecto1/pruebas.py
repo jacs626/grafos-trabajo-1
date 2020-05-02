@@ -1,6 +1,51 @@
+grafo = {
+'vertices': ['a','b','c','d','e','f'],
+'aristas': set([
+    (5,'a','c'),
+    (3,'a','d'),
+    (2,'b','d'),
+    (1,'c','d'),
+    (5,'f','d'),
+    (3,'b','f'),
+    (6,'f','e'),
+    (1,'a','b'),
+    ])
+}
 
 m1=[[0,1,1,0],[1,0,0,1],[1,0,0,0],[0,1,0,0]]
 m2=[[1,2,3,3],[4,5,6,3],[7,8,9,3],[2,3,4,1]]
+
+aristas = list(grafo['aristas'])
+vertices = list(grafo['vertices'])
+aristas.sort()
+tipo=1
+
+mvacia=[]
+for i in range(len(grafo['vertices'])):
+    mvacia.append([])
+    for j in range(len(grafo['vertices'])):
+        mvacia[i].append(0)
+
+def buscarincid (a):
+    i=0
+    while(True):
+        if a == vertices[i]:
+            return i
+            break
+        else:
+            i=i+1
+
+madyacente=[]
+madyacente=mvacia
+
+for e in aristas:
+    peso, u, v = e
+    madyacente[buscarincid(u)][buscarincid(v)]+=peso
+    if tipo==1:
+        madyacente[buscarincid(v)][buscarincid(u)]+=peso    
+
+
+
 
 
 
@@ -69,10 +114,61 @@ def mostrarmatriz(m1):
 
 
 
+
+
+base = dict()
+ord = dict()   
+
+def Genera_Conjunto(v):
+    base[v] = v
+    ord[v] = 0
+
+
+def Buscar(v):
+    if base[v] != v:
+        base[v] = Buscar(base[v])
+    return base[v]
+
+def union(u, v):
+    v1 = Buscar(u)
+    v2 = Buscar(v)
+    if v1 != v2:
+        if ord[v1] > ord[v2]:
+            base[v2] = v1 
+        else:
+            base[v1] = v2
+            if ord[v1] == ord[v2]: 
+                ord[v2] += 1
+
+def kruskal(grafo):
+
+    mst = set()
+   
+    for v in grafo['vertices']:
+        Genera_Conjunto(v)
+    print ("Sub gráficos creados:")
+    print (base)
+
+    aristas = list(grafo['aristas'])
+    aristas.sort()
+    
+    print ("Aristas ordenadas:")
+    print (aristas)
+
+    for e in aristas:
+        if Buscar(u) != Buscar(v):
+            union(u, v)
+            mst.add(e)
+    return mst 
+
+
+k = kruskal(grafo)
+print ("Resultado MST:")
+print (k)
+
+
 mostrarmatriz(m1)
-mostrarmatriz(m2)
-mostrarmatriz(multiplicamatrices(m1,m2))
-mostrarmatriz(sumar_matrices(m1,m1))
-mostrarmatriz(matriz_caminos(m1,3))
-mostrarmatriz(matriz_conexa(m1))
+mostrarmatriz(madyacente)
+mostrarmatriz(matriz_caminos(madyacente,1))
 comprueba(matriz_conexa(m1))
+mostrarmatriz(multiplicamatrices(m1,m2))
