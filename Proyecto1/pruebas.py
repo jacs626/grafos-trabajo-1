@@ -1,20 +1,21 @@
+import sys
+import fileinput
+from collections import defaultdict 
 
+
+#grafo general
 grafo = {
-'vertices': ['a','b','c','d','e','f'],
+'vertices': ['a','b','c','d'],
 'aristas': set([
     (5,'a','c'),
     (3,'a','d'),
     (2,'b','d'),
     (1,'c','d'),
-    (5,'f','d'),
-    (3,'b','f'),
-    (6,'f','e'),
     (1,'a','b'),
     ])
 }
 
-m1=[[0,1,1,0],[1,0,0,1],[1,0,0,0],[0,1,0,0]]
-m2=[[1,2,3,3],[4,5,6,3],[7,8,9,3],[2,3,4,1]]
+
 
 aristas = list(grafo['aristas'])
 vertices = list(grafo['vertices'])
@@ -32,7 +33,6 @@ def buscarincid (a):
     while(True):
         if a == vertices[i]:
             return i
-            break
         else:
             i=i+1
 
@@ -44,8 +44,6 @@ for e in aristas:
     madyacente[buscarincid(u)][buscarincid(v)]+=peso
     if tipo==1:
         madyacente[buscarincid(v)][buscarincid(u)]+=peso    
-
-
 
 
 
@@ -100,6 +98,15 @@ def comprueba(m1):
                 print ("No es conexa")
                 return
     print ("es conexa")
+
+def comprueba2(m1):
+    for i in range(len(m1)):
+        for j in range(len(m1[0])):
+            if m1[i][j]==0:
+                return False
+    return True
+
+
     
 def mostrarmatriz(m1):
     for fila in m1:
@@ -108,41 +115,7 @@ def mostrarmatriz(m1):
             print (elemento, end= " ")
         print ("]")
     print (":::::::::::::::::::::::::::::::::::::::::::::::::::::::")
-def ComprobarHamilt(m1):
-    aux=0
-    aux2=1
-    Grados=[]
-    GradosVert=[]
-    for fila in m1:
-        aux=0
-        print ("[", end= " ")
-        for elemento in fila:
-            print (elemento, end= " ")
-            if (elemento != 0):
-                aux+=1
-        print ("]")        
-        Grados.append(aux)
-        GradosVert.append(aux2)
-        aux2=aux2+1
-    aux=0
-    aux2=0
-    aux3=1
-    aux4=0
-    while aux2!=len(Grados)-1:
-        while aux3!=len(Grados)-1:
-            if m1[aux][aux3]==0:
-                if len(m1)-1<= Grados[aux]+Grados[aux3]:
-                    print (" ")
-                else:
-                    print ("El grafo no es hamiltoniano")
-                    aux4=15
-                    break
-            aux3+=1
-        if (aux4==15):
-            break
-        aux+=1
-        aux2+=1
-        aux3=0
+
 
 
 
@@ -182,32 +155,133 @@ def kruskal(grafo):
    
     for v in grafo['vertices']:
         Genera_Conjunto(v)
-    print ("Sub gráficos creados:")
-    print (base)
-
-    aristas = list(grafo['aristas'])
-    aristas.sort()
-    
-    print ("Aristas ordenadas:")
-    print (aristas)
 
     for e in aristas:
+        peso, u, v = e
         if Buscar(u) != Buscar(v):
             union(u, v)
             mst.add(e)
     return mst 
 
+def ComprobarHamilt(m1):
+    aux=0
+    aux2=97
+    Grados=[]
+    GradosVert=[]
+    for fila in m1:
+        aux=0
+        for elemento in fila:
+            if (elemento != 0):
+                aux+=1      
+        Grados.append(aux)
+        GradosVert.append(chr(aux2))
+        aux2=aux2+1
+    aux=0
+    aux2=0
+    aux3=1
+    Ayuda=0
+    while aux2!=len(Grados)-1:
+        while aux3!=len(Grados)-1:
+            if m1[aux][aux3]==0:
+                if len(m1)-1<= Grados[aux]+Grados[aux3]:
+                    print (" ")
+                    Ayuda=0
+                else:
+                    print ("El grafo no es hamiltoniano")
+                    Ayuda=1
+                    break
+            aux3+=1
+        if (Ayuda==1):
+            break
+        aux+=1
+        aux2+=1
+        aux3=0
+    if Ayuda==0:
+        print ("Es Hamiltoniano")
+
+def Euleriano(m1):
+    aux=0
+    aux2=1
+    AuxVerificador=0
+    Grados=[]
+    for fila in m1:
+        aux=0
+        for elemento in fila:
+            if (elemento != 0):
+                aux+=1      
+        Grados.append(aux)
+        aux2=aux2+1
+    Impar=0
+    for elem in Grados:
+        if elem%2!=0:
+            Impar+=1
+    if Impar==2:
+        if comprueba2(matriz_conexa(m1)):
+            AuxVerificador=1
+            print ("El grafo es euleriano")
+            return
+        else:
+            AuxVerificador=0
+    if comprueba2((matriz_conexa(m1))):
+        AuxVerificador=1
+        print ("El grafo es euleriano")
+        return
+    if AuxVerificador==0:
+        print ("El grafo no es euleriano")
+        return
+
+
+class Grafos: 
+   
+    def __init__(self,graph): 
+        self.grafos = grafos
+        self.fila = len(grafos) 
+    def encontrarcamino(self,s, t, padre): 
+        visitado =[False]*(self.fila) 
+        cola=[] 
+        cola.append(s) 
+        visitado[s] = True
+        while cola: 
+            u = cola.pop(0) 
+            for ind, val in enumerate(self.grafos[u]): 
+                if visitado[ind] == False and val > 0 : 
+                    cola.append(ind) 
+                    visitado[ind] = True
+                    padre[ind] = u 
+        return True if visitado[t] else False
+              
+    def FordFulkerson(self, salida, llegada): 
+  
+        padre = [-1]*(self.fila)   
+        max_flujo = 0 
+        while self.encontrarcamino(salida, llegada, padre):
+            camino_flujo = float("Inf") 
+            s = llegada
+            while(s !=  salida): 
+                camino_flujo = min (camino_flujo, self.grafos[padre[s]][s]) 
+                s = padre[s]
+            max_flujo +=  camino_flujo
+            v = llegada
+            while(v !=  salida): 
+                u = padre[v] 
+                self.grafos[u][v] -= camino_flujo
+                self.grafos[v][u] += camino_flujo
+                v = padre[v] 
+  
+        return max_flujo
+
+grafos = [[0,9,12,0,0,0,0],
+[0,0,6,9,4,3,0],
+[0,0,0,2,6,3,0],
+[0,0,0,0,2,0,7],
+[0,0,0,0,0,2,8],
+[0,0,0,0,0,0,5],
+[0,0,0,0,0,0,0]]
+
+g=Grafos(grafos)
+
 
 k = kruskal(grafo)
-print ("Resultado MST:")
-print (k)
-
-
-mostrarmatriz(m1)
-mostrarmatriz(madyacente)
-mostrarmatriz(matriz_caminos(madyacente,1))
-comprueba(matriz_conexa(m1))
-mostrarmatriz(multiplicamatrices(m1,m2))
 
 
 from collections import deque, namedtuple
@@ -301,10 +375,21 @@ class Graph:
             recorrido.appendleft(actual_vertice)
         return recorrido
 
-
+#grafo para dijkstra
 graph = Graph([
     ("a", "b", 7),  ("a", "c", 9),  ("a", "f", 14), ("b", "c", 10),
     ("b", "d", 15), ("c", "d", 11), ("c", "f", 2),  ("d", "e", 6),
     ("e", "f", 9)])
 
+
+print("matriz de caminos con indice 1")
+mostrarmatriz(matriz_caminos(madyacente,1))
+comprueba(matriz_conexa(madyacente))
+print("Dijkstra:")
 print(graph.dijkstra("a", "f"))
+ComprobarHamilt(madyacente)
+Euleriano(madyacente)
+print("flujo max de salida 0 y llegada 6 es: %d " %g.FordFulkerson(0,6))
+print ("subgrafo camino menos peso con kruskal:")
+print (k)
+
