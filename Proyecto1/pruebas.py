@@ -107,6 +107,41 @@ def mostrarmatriz(m1):
             print (elemento, end= " ")
         print ("]")
     print (":::::::::::::::::::::::::::::::::::::::::::::::::::::::")
+def ComprobarHamilt(m1):
+    aux=0
+    aux2=1
+    Grados=[]
+    GradosVert=[]
+    for fila in m1:
+        aux=0
+        print ("[", end= " ")
+        for elemento in fila:
+            print (elemento, end= " ")
+            if (elemento != 0):
+                aux+=1
+        print ("]")        
+        Grados.append(aux)
+        GradosVert.append(aux2)
+        aux2=aux2+1
+    aux=0
+    aux2=0
+    aux3=1
+    aux4=0
+    while aux2!=len(Grados)-1:
+        while aux3!=len(Grados)-1:
+            if m1[aux][aux3]==0:
+                if len(m1)-1<= Grados[aux]+Grados[aux3]:
+                    print (" ")
+                else:
+                    print ("El grafo no es hamiltoniano")
+                    aux4=15
+                    break
+            aux3+=1
+        if (aux4==15):
+            break
+        aux+=1
+        aux2+=1
+        aux3=0
 
 
 
