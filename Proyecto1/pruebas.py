@@ -1,3 +1,4 @@
+
 grafo = {
 'vertices': ['a','b','c','d','e','f'],
 'aristas': set([
@@ -207,3 +208,103 @@ mostrarmatriz(madyacente)
 mostrarmatriz(matriz_caminos(madyacente,1))
 comprueba(matriz_conexa(m1))
 mostrarmatriz(multiplicamatrices(m1,m2))
+
+
+from collections import deque, namedtuple
+
+
+# usaremos infinito como distancia para los nodos.
+inf = float('inf')
+Arista = namedtuple('Arista', 'start, end, peso')
+
+
+def make_Arista(start, end, peso=1):
+  return Arista(start, end, peso)
+
+
+class Graph:
+    def __init__(self, Aristas):
+        # verifiquemos que los datos sean correctos
+        wrong_Aristas = [i for i in Aristas if len(i) not in [2, 3]]
+        if wrong_Aristas:
+            raise ValueError('Wrong Aristas data: {}'.format(wrong_Aristas))
+
+        self.Aristas = [make_Arista(*Arista) for Arista in Aristas]
+
+    @property
+    def vertices(self):
+        return set(
+            sum(
+                ([Arista.start, Arista.end] for Arista in self.Aristas), []
+            )
+        )
+###funciones de agregar y quitar.
+    def get_nodo_pares(self, n1, n2, both_ends=True):
+        if both_ends:
+            nodo_pares = [[n1, n2], [n2, n1]]
+        else:
+            nodo_pares = [[n1, n2]]
+        return nodo_pares
+
+    def remove_Arista(self, n1, n2, both_ends=True):
+        nodo_pares = self.get_nodo_pares(n1, n2, both_ends)
+        Aristas = self.Aristas[:]
+        for Arista in Aristas:
+            if [Arista.start, Arista.end] in nodo_pares:
+                self.Aristas.remove(Arista)
+
+    def add_Arista(self, n1, n2, peso=1, both_ends=True):
+        nodo_pares = self.get_nodo_pares(n1, n2, both_ends)
+        for Arista in self.Aristas:
+            if [Arista.start, Arista.end] in nodo_pares:
+                return ValueError('Arista {} {} already exists'.format(n1, n2))
+
+        self.Aristas.append(Arista(start=n1, end=n2, peso=peso))
+        if both_ends:
+            self.Aristas.append(Arista(start=n2, end=n1, peso=peso))
+
+####################################  vecinos para cada nodo:
+    @property
+    def vecinos(self):
+        vecinos = {vertice: set() for vertice in self.vertices}
+        for Arista in self.Aristas:
+            vecinos[Arista.start].add((Arista.end, Arista.peso))
+
+        return vecinos
+
+    def dijkstra(self, source, dest):
+        assert source in self.vertices, 'Such source nodo doesn\'t exist'
+        distancia = {vertice: inf for vertice in self.vertices}
+        previo_vertices = {
+            vertice: None for vertice in self.vertices
+        }
+        distancia[source] = 0
+        vertices = self.vertices.copy()
+
+        while vertices:
+            actual_vertice = min(
+                vertices, key=lambda vertice: distancia[vertice])
+            vertices.remove(actual_vertice)
+            if distancia[actual_vertice] == inf:
+                break
+            for vecino, peso in self.vecinos[actual_vertice]:
+                alternative_route = distancia[actual_vertice] + peso
+                if alternative_route < distancia[vecino]:
+                    distancia[vecino] = alternative_route
+                    previo_vertices[vecino] = actual_vertice
+
+        recorrido, actual_vertice = deque(), dest
+        while previo_vertices[actual_vertice] is not None:
+            recorrido.appendleft(actual_vertice)
+            actual_vertice = previo_vertices[actual_vertice]
+        if recorrido:
+            recorrido.appendleft(actual_vertice)
+        return recorrido
+
+
+graph = Graph([
+    ("a", "b", 7),  ("a", "c", 9),  ("a", "f", 14), ("b", "c", 10),
+    ("b", "d", 15), ("c", "d", 11), ("c", "f", 2),  ("d", "e", 6),
+    ("e", "f", 9)])
+
+print(graph.dijkstra("a", "f"))
